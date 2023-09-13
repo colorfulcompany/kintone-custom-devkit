@@ -1,0 +1,6 @@
+*~
+*.bak
+.env
+
+/node_modules
+yarn-error.log

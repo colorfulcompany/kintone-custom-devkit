@@ -1,0 +1,13 @@
+#! /bin/sh
+
+cat <<EOD
+Congurats !!
+
+after all, please
+
+npm i -g @kintone/customize-uploader
+
+and
+
+turn browser proxy to localhost:8001 when development start.
+EOD
