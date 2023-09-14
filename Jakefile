@@ -23,7 +23,7 @@ const { namespace, task, desc } = require('jake')
 const { execa } = require('@esm2cjs/execa')
 require('dotenv').config()
 
-const { apps, appPath } = require('./lib/apps.js')
+const { apps, appPath, readMetainfo, needBuild, buildProcess, proxyProcess } = require('./lib/apps.js')
 
 desc('default task')
 task('default', () => {
@@ -55,25 +55,36 @@ namespace('dev', () => {
   apps().forEach((app) => {
     desc(app)
     task(app, async () => {
-      execa(
-        'yarn',
-        ['run', 'proxy'],
-        {
-          stdio: process.env.PROXY_DEBUG === 'true' ? 'inherit' : 'ignore',
-          env: {
-            KINTONE_APP_ID: app,
-            KINTONE_BASE_URL: appPath(app)
-          }
-        }
-      )
+      const devProccesses = [
+        proxyProcess(app)
+      ]
+
+      if (needBuild(app)) {
+        devProccesses.push(buildProcess(app, 'development'))
+      }
+
+      await Promise.all(devProccesses)
     })
+  })
+})
+
+namespace('build', () => {
+  apps().forEach((app) => {
+    if (needBuild(app)) {
+      desc(app)
+      task(app, async () => {
+        buildProcess(app)
+      })
+    }
   })
 })
 
 namespace('deploy', () => {
   apps().forEach((app) => {
+    const deps = needBuild(app) ? [`build:${app}`] : []
+
     desc(app)
-    task(app, async () => {
+    task(app, deps, async () => {
       const env = process.env
 
       await execa(

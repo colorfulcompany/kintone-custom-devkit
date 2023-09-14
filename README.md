@@ -4,10 +4,10 @@
 
  * apps/ 以下のアプリの一覧を自動生成
  * それぞれの app ごとのタスクを自動定義
-    * lint
+    * lint ( 予定 )
     * deploy
     * proxy
-    * build ( 予定 )
+    * build ( opt-in )
     * test ( 予定 )
 
 ## 特徴
@@ -90,6 +90,22 @@ development proxy として [alibaba/anyproxy: A fully configurable http/https p
 へ向ける設定を行う。開発時には頻繁にこの設定を ON/OFF することになるので、何らかのブラウザ拡張の利用を推奨する。
 
 [^1]: localhost:8001 は anyproxy のデフォルト
+
+## 開発手法
+
+### buildプロセスがあるもの
+
+`apps/<name>/` 以下に `meta.yml` を置き、その中で
+
+```yaml
+build: true
+```
+
+と設定する。build プロセスの実行には `vite` を利用する。
+
+### buildプロセスがないもの
+
+カスタマイズに適用する構成をそのまま local に置く。
 
 ## Kintone Dev Proxyについて
 

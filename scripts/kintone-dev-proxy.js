@@ -28,6 +28,7 @@
 const { URL } = require('url')
 const path = require('path')
 const fs = require('fs')
+const { appPath } = require('../lib/apps.js')
 
 /**
  * カスタマイズで添付したファイルの download 用の URL だけ 404 を返し、
@@ -98,7 +99,7 @@ async function responseFromLocal (requestDetail) {
       },
       body: fs.readFileSync(
         path.resolve(
-          process.env.KINTONE_BASE_URL,
+          appPath(process.env.KINTONE_APP_ID),
           u.pathname.replace(/^\//, '')),
         { encoding: 'utf-8' })
     }
