@@ -23,7 +23,7 @@ const { namespace, task, desc } = require('jake')
 const { execa } = require('@esm2cjs/execa')
 require('dotenv').config()
 
-const { apps, appPath, readMetainfo, needBuild, buildProcess, proxyProcess } = require('./lib/apps.js')
+const { apps, appPath, readMetainfo, needBuild, buildProcess, proxyProcess, descWithProductionId } = require('./lib/apps.js')
 
 desc('default task')
 task('default', () => {
@@ -44,7 +44,7 @@ task('lint', () => {
 
 namespace('lint', () => {
   apps().forEach((app) => {
-    desc(app)
+    desc(descWithProductionId(app))
     task(app, async () => {
       await execa('yarn', ['run', 'eslint', `${appPath(app)}`])
     })
@@ -53,7 +53,7 @@ namespace('lint', () => {
 
 namespace('dev', () => {
   apps().forEach((app) => {
-    desc(app)
+    desc(descWithProductionId(app))
     task(app, async () => {
       const devProccesses = [
         proxyProcess(app)
@@ -71,7 +71,7 @@ namespace('dev', () => {
 namespace('build', () => {
   apps().forEach((app) => {
     if (needBuild(app)) {
-      desc(app)
+      desc(descWithProductionId(app))
       task(app, async () => {
         buildProcess(app)
       })
@@ -83,7 +83,7 @@ namespace('deploy', () => {
   apps().forEach((app) => {
     const deps = needBuild(app) ? [`build:${app}`] : []
 
-    desc(app)
+    desc(descWithProductionId(app))
     task(app, deps, async () => {
       const env = process.env
 
