@@ -23,7 +23,7 @@ const { namespace, task, desc } = require('jake')
 const { execa } = require('@esm2cjs/execa')
 require('dotenv').config()
 
-const { apps, appPath, readMetainfo, needBuild, buildProcess, proxyProcess, descWithProductionId } = require('./lib/apps.js')
+const { apps, appPath, readMetainfo, needBuild, buildProcess, devProcess, proxyProcess, descWithProductionId } = require('./lib/apps.js')
 
 desc('default task')
 task('default', () => {
@@ -72,6 +72,17 @@ namespace('applyLocal', () => {
         })
       })
     })
+  })
+})
+
+namespace('dev', () => {
+  apps().forEach((app) => {
+    if (needBuild(app)) {
+      desc(descWithProductionId(app))
+      task(app, async () => {
+        await devProcess(app)
+      })
+    }
   })
 })
 
