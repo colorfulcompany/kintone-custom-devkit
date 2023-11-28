@@ -17,7 +17,8 @@
  *
  * <ol>
  *   <li>環境変数 KINTONE_BASE_URL から該当する Kintone のワークスペースを受け取る</li>
- *   <li>環境変数 KINTONE_APP_ID から対象となるアプリを受け取る</li>
+ *   <li>環境変数 KINTONE_APP_ID で proxy 対象とするアプリを受け取る</li>
+ *   <li>環境変数 KINTONE_APP_DIR から読み替える local のパスを受け取る</li>
  *   <li>production 環境のカスタマイズ向けの request を block する</li>
  *   <li>development 向けの request を各アプリの場所に合わせて local のファイルの内容に変換する</li>
  * </ol>
@@ -99,7 +100,7 @@ async function responseFromLocal (requestDetail) {
       },
       body: fs.readFileSync(
         path.resolve(
-          appPath(process.env.KINTONE_APP_ID),
+          process.env.KINTONE_APP_DIR,
           u.pathname.replace(/^\//, '')),
         { encoding: 'utf-8' })
     }

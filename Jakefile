@@ -51,19 +51,26 @@ namespace('lint', () => {
   })
 })
 
-namespace('dev', () => {
+namespace('applyLocal', () => {
   apps().forEach((app) => {
-    desc(descWithProductionId(app))
-    task(app, async () => {
-      const devProccesses = [
-        proxyProcess(app)
-      ]
+    const meta = readMetainfo(appPath(app))
+    const envs = Object.keys(meta.app_id || {})
+    envs.forEach((env) => {
+      namespace(app, () => {
+        const appId = meta.app_id[env]
+        desc([appId, meta.name].join(':'))
+        task(env, async () => {
+          const devProccesses = [
+            proxyProcess(appId, appPath(app))
+          ]
 
-      if (needBuild(app)) {
-        devProccesses.push(buildProcess(app, 'development'))
-      }
+          if (needBuild(app)) {
+            devProccesses.push(buildProcess(app, 'development'))
+          }
 
-      await Promise.all(devProccesses)
+          await Promise.all(devProccesses)
+        })
+      })
     })
   })
 })
