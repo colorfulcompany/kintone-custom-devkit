@@ -88,23 +88,31 @@ namespace('build', () => {
 
 namespace('deploy', () => {
   apps().forEach((app) => {
+    const meta = readMetainfo(appPath(app))
+    const envs = Object.keys(meta.app_id || {})
+
     const deps = needBuild(app) ? [`build:${app}`] : []
 
-    desc(descWithProductionId(app))
-    task(app, deps, async () => {
-      const env = process.env
+    envs.forEach((env) => {
+      desc(descWithProductionId(app))
+      namespace(app, () => {
+        const appId = meta.app_id[env]
+        task(env, deps, async () => {
+          const env = process.env
 
-      await execa(
-        'kintone-customize-uploader',
-        [
-          '--base-url', env.KINTONE_BASE_URL,
-          '--username', env.KINTONE_USERNAME,
-          '--password', `'${env.KINTONE_PASSWORD}'`,
-          '-d', appPath(app),
-          `${resolve(appPath(app), 'customize-manifest.json')}`
-        ],
-        { stdio: 'inherit', cwd: appPath(app) }
-      )
+          await execa(
+            'kintone-customize-uploader',
+            [
+              '--base-url', env.KINTONE_BASE_URL,
+              '--username', env.KINTONE_USERNAME,
+              '--password', `'${env.KINTONE_PASSWORD}'`,
+              '-d', appPath(app),
+              `${resolve(appPath(app), 'customize-manifest.json')}`
+            ],
+            { stdio: 'inherit', cwd: appPath(app) }
+          )
+        })
+      })
     })
   })
 })
