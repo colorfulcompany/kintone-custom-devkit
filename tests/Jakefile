@@ -1,0 +1,6 @@
+#! -*- mode: javascript -*-
+
+const { resolve } = require('path')
+
+const { defineDevkitTasks } = require('../jakelib/builder')
+defineDevkitTasks(resolve(__dirname, 'apps'))

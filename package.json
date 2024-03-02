@@ -1,6 +1,8 @@
 {
-  "license": "UNLICENSED",
-  "devDependencies": {
+  "name": "@colorfulcompany/kintone-custom-devkit",
+  "version": "0.1.0",
+  "license": "BSD-2-Clause",
+  "dependencies": {
     "@esm2cjs/execa": "^6.1.1-cjs.1",
     "anyproxy": "^4.1.3",
     "dotenv": "^16.3.1",
@@ -12,7 +14,7 @@
     "yaml": "^2.3.2"
   },
   "scripts": {
-    "proxy": "yarn anyproxy -i -r scripts/kintone-dev-proxy.js",
-    "postinstall": "./bin/postinstall"
+    "postinstall": "./bin/postinstall",
+    "test-jake": "jake -T -f tests/Jakefile"
   }
 }

@@ -29,7 +29,7 @@
 const { URL } = require('url')
 const path = require('path')
 const fs = require('fs')
-const { appPath } = require('../lib/apps.js')
+const { getEnv, formatLog } = require('../lib/util.js')
 
 /**
  * カスタマイズで添付したファイルの download 用の URL だけ 404 を返し、
@@ -47,13 +47,14 @@ async function blockOnlyCustomizeFiles (requestDetail, responseDetail) {
   const u = new URL(requestDetail.url)
   if (u.pathname === '/k/api/js/download.do' &&
       u.searchParams.has('app') &&
-      u.searchParams.get('app') === process.env.KINTONE_APP_ID) {
+      u.searchParams.get('app') === getEnv(process.env, 'KINTONE_APP_ID')) {
+    console.log(formatLog(`block ${u}`))
     return {
       response: {
         statusCode: 404,
         header: {
           'Content-Type': 'text/plain',
-          'X-ColorfulCompany-Dev-env-error-reason': 'blocked by development proxy'
+          'X-Devenv-Error-Reason': 'blocked by development proxy'
         }
       }
     }
@@ -100,7 +101,7 @@ async function responseFromLocal (requestDetail) {
       },
       body: fs.readFileSync(
         path.resolve(
-          process.env.KINTONE_APP_DIR,
+          getEnv(process.env, 'KINTONE_APP_DIR'),
           u.pathname.replace(/^\//, '')),
         { encoding: 'utf-8' })
     }
@@ -117,7 +118,7 @@ module.exports = {
     const u = new URL(requestDetail.url)
 
     switch (u.origin) {
-    case process.env.KINTONE_BASE_URL:
+    case getEnv(process.env, 'KINTONE_BASE_URL'):
       return blockOnlyCustomizeFiles(requestDetail, responseDetail)
     case 'https://kintone-dev.local':
       return responseFromLocal(requestDetail)
