@@ -101,7 +101,7 @@ development proxy として [alibaba/anyproxy: A fully configurable http/https p
 
 ### buildプロセスがあるもの
 
-`<指定ディレクトリ>/<name>/` 以下に `meta.yml` を置き、その中で
+`<指定ディレクトリ>/<name>/` 以下に `meta.yaml` を置き、その中で
 
 ```yaml
 build: true
@@ -109,9 +109,98 @@ build: true
 
 と設定する。build プロセスの実行には `vite` を利用する。
 
+#### 具体的なディレクトリ構成とvite.config.jsの例
+
+例えば
+
+```
+<指定ディレクトリ>/
+  アプリ1/ <- ここでビルドが必要な場合
+  アプリ2/
+  ...
+```
+
+の場合、以下のような構成になる。
+
+```
+<指定ディレクトリ>/
+  アプリ1/ <- ここでビルドが必要な場合
+    desktop/  <- PC用のコード（deploy用）
+    meta.yaml <- build: true
+    mobile/   <- モバイル用のコード（deploy用）
+    src/      <- 開発中のコード
+      index.html
+      js/
+    vite.config.js
+```
+
+例えば Vue2 を利用している場合の vite.config.js は以下のようになる。
+
+```javascript
+import path from 'path'
+import { defineConfig } from 'vite'
+import Vue from '@vitejs/plugin-vue2'
+
+const root = path.resolve(__dirname, './src')
+
+export default defineConfig (({ command, mode }) => {
+  const isProduction = mode === 'production'
+
+  return {
+    root,
+    plugins: [
+      Vue()
+    ],
+    build: {
+      outDir: '..',
+      modulePreload: false,
+      minify: isProduction,
+      rollupOptions: {
+        output: {
+          format: 'iife',
+          entryFileNames: '[name].js',
+          assetFileNames: '[name].js'
+        },
+        input: {
+          'desktop/js/app': path.resolve(root, 'index.html')
+        }
+      }
+    }
+  }
+})
+```
+
+Kintone カスタマイズのコードは以下のように type="module" ではない形で読み込まれる[^2]ので、
+
+```
+<script src="https://<KINTONE_BASE_URL>/k/api/js/download.do?app=xxx..."></script>
+```
+
+Vite でビルドする際には **「ESM でない形式」で出力する必要がある**。上記の例では IIFE で出力している。
+
+[^2]: これはカスタマイズのコードの互換性と、アプリそのものの情報へのアクセスしやすさを考えると恐らくそう簡単に変わらない
+
 ### buildプロセスがないもの
 
 カスタマイズに適用する構成をそのまま local に置く。
+
+## meta.yamlの文法
+
+```yaml
+name: <アプリの名前> ( not ID )
+app_id:
+  production: 本運用中のアプリケーションID
+  staging: 動作確認に利用するアプリケーションID
+build: boolean
+```
+
+app_id は Kintone Dev Proxy で利用する。ここに書かれた環境ごとに jake -T でタスクが並び、例えば
+
+```
+jake applyLocal:<アプリ名>:production
+```
+
+なら production のアプリケーションIDに対して proxy が有効になる。deploy の際は customize-manifest.json に書かれている ID を利用しているので、deploy のために meta.yaml を書かなければいけないわけではない。
 
 ## Kintone Dev Proxyについて
 
