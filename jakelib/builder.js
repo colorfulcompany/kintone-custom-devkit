@@ -15,7 +15,6 @@
  * を利用している
  */
 const { resolve } = require('path')
-const { globSync } =  require('glob')
 const { namespace, task, desc } = require('jake')
 const { execa } = require('@esm2cjs/execa')
 require('dotenv').config()
@@ -39,13 +38,6 @@ function defineDevkitTasks (appDir, ...funcs) {
   desc('apps')
   task('apps', () => {
     console.log(apps.list().join('\n'))
-  })
-
-  desc('lint')
-  task('lint', () => {
-    apps.list().forEach((app) => {
-      console.log(globSync(apps.path(app)))
-    })
   })
 
   namespace('lint', () => {
