@@ -2,7 +2,7 @@
 
 ## できること
 
- * apps/ 以下のアプリの一覧を自動生成
+ * 指定ディレクトリ以下のアプリの一覧を自動生成
  * それぞれの app ごとのタスクを自動定義
     * lint ( 予定 )
     * deploy
@@ -39,6 +39,12 @@ Kintone の権限管理にはさまざまな方法があり、OAuth でも `@kin
 
 直接 deploy しない場合は `KINTONE_USERNAME`, `KINTONE_PASSWORD` は不要
 
+下記の Kintone Dev Proxy を利用する場合は
+
+ * `PROXY_DEBUG` を true に
+
+すると anyproxy およびそこから読み込むカスタムスクリプトのログが表示される。
+
 ### 2. deploy用のツールを別途global install
 
 これも**本ツールで直接 deploy しない場合は不要**。
@@ -52,7 +58,7 @@ Kintone の権限管理にはさまざまな方法があり、OAuth でも `@kin
 例えば以下のようにカスタマイズのコードを置いたとして
 
 ```
-apps/ <- カスタマイズするアプリを置く場所
+<指定ディレクトリ>/ <- カスタマイズするアプリを置く場所
   アプリ1/
   アプリ2/
   ...
@@ -60,7 +66,7 @@ apps/ <- カスタマイズするアプリを置く場所
 
 アプリ1の manifest は以下のファイルになるが、
 
-`apps/アプリ1/customize-manifest.json`
+`<指定ディレクトリ>/アプリ1/customize-manifest.json`
 
 この内容は以下のようになる。
 
@@ -70,7 +76,7 @@ apps/ <- カスタマイズするアプリを置く場所
   "scope": "ALL",
   "desktop": {
     "js": [
-      "apps/アプリ1/desktop/js/foobar.js", // <-
+      "<指定ディレクトリ>/アプリ1/desktop/js/foobar.js", // <-
       ..
     ]
   }
@@ -95,7 +101,7 @@ development proxy として [alibaba/anyproxy: A fully configurable http/https p
 
 ### buildプロセスがあるもの
 
-`apps/<name>/` 以下に `meta.yml` を置き、その中で
+`<指定ディレクトリ>/<name>/` 以下に `meta.yml` を置き、その中で
 
 ```yaml
 build: true
@@ -131,7 +137,7 @@ build: true
 をリンクとして「アプリ1」に追加した場合は、
 
 ```
-apps/
+<指定ディレクトリ>/
   アプリ1/
     desktop/
       js/
