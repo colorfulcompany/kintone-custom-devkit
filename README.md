@@ -29,7 +29,34 @@ Kintone の権限管理にはさまざまな方法があり、OAuth でも `@kin
 
 なので、SSO環境の場合は管理者と相談しパスワード認証を有効にしてもらう。
 
-### 1. 環境変数
+### 1. Jakefile
+
+本ツールは Kintone カスタマイズの開発を助けるタスクを自動定義するために
+
+[jakejs/jake: JavaScript build tool, similar to Make or Rake\. Built to work with Node\.js\.](https://github.com/jakejs/jake)
+
+を利用している。Jake を適切に動作させるために以下のような内容の Jakefile をプロジェクトルートに置く必要がある。
+
+```javascript
+const { resolve } = require('path')
+const { defineDevkitTasks } = require('@colorfulcompany/kintone-custom-devkit/jakelib/builder')
+defineDevkitTasks(resolve(__dirname, 'apps'))
+```
+
+上記の Jakefile はプロジェクト全体で以下のようなディレクトリ構成になっていることを期待している。
+
+```
+プロジェクトルート/
+  Jakefile
+  apps/
+    アプリ1/  <- アプリごとのカスタマイズコード
+    アプリ2/  <- アプリごとのカスタマイズコード
+    ...
+```
+
+注意事項として、**Jakefile は v10 の時点で CommonJS 形式でしか動作しない**。
+
+### 2. 環境変数
 
 `.env` ファイルを用意し、以下の環境変数をセット
 
@@ -45,7 +72,7 @@ Kintone の権限管理にはさまざまな方法があり、OAuth でも `@kin
 
 すると anyproxy およびそこから読み込むカスタムスクリプトのログが表示される。
 
-### 2. deploy用のツールを別途global install
+### 3. deploy用のツールを別途global install
 
 これも**本ツールで直接 deploy しない場合は不要**。
 
@@ -85,7 +112,7 @@ Kintone の権限管理にはさまざまな方法があり、OAuth でも `@kin
 
 これでは実際のディレクトリ構成と manifest ファイル内に二重に情報が保存されてしまって扱いにくいが、global install した場合はこのような問題は起きないので、global install で解決することとした。
 
-### 3. ブラウザのproxyのセットアップ
+### 4. ブラウザのproxyのセットアップ
 
 development proxy として [alibaba/anyproxy: A fully configurable http/https proxy in NodeJS](https://github.com/alibaba/anyproxy) を利用している。開発中は Kintone の workspace への request を local proxy に向けることで開発中のコードを deploy することなく Kintone 環境に適用できる。
 
